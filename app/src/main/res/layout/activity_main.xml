@@ -20,10 +20,7 @@
             android:layout_height="wrap_content"
             android:text="@string/app_name"
             android:layout_gravity="center"
-            android:textColor="@color/secondary"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            android:fontFamily="@font/macondo_regular"/>
+            style="@style/Title"/>
 
     </FrameLayout>
 
