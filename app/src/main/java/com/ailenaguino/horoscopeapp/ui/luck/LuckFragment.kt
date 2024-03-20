@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
@@ -13,14 +14,19 @@ import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
 import com.ailenaguino.horoscopeapp.R
 import com.ailenaguino.horoscopeapp.databinding.FragmentLuckBinding
+import com.ailenaguino.horoscopeapp.ui.providers.RandomCardProvider
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Random
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LuckFragment : Fragment() {
 
     private var _binding: FragmentLuckBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var randomCardProvider: RandomCardProvider
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,7 +42,16 @@ class LuckFragment : Fragment() {
     }
 
     private fun initUI() {
+        preparePremonition()
         initListeners()
+    }
+
+    private fun preparePremonition() {
+        val luck = randomCardProvider.getLucky()
+        luck?.let {
+            binding.tvLuckyDescription.text = getString(it.text)
+            binding.ivLuckyCard.setImageResource(it.image)
+        }
     }
 
     private fun initListeners() {
@@ -75,11 +90,34 @@ class LuckFragment : Fragment() {
             override fun onAnimationStart(animation: Animation?) {}
 
             override fun onAnimationEnd(animation: Animation?) {
-
+                binding.ivCardReverse.isVisible = false
+                showPremonitionView()
             }
 
             override fun onAnimationRepeat(animation: Animation?) {}
         })
         binding.ivCardReverse.startAnimation(growAnimation)
+    }
+
+    private fun showPremonitionView() {
+        val disappearAnimation = AlphaAnimation(1.0f, 0.0f) //alpha cambia la opacidad
+        disappearAnimation.duration = 200
+
+        val appearAnimation = AlphaAnimation(0.0f, 1.0f)
+        appearAnimation.duration = 1000
+
+        disappearAnimation.setAnimationListener(object : Animation.AnimationListener{
+            override fun onAnimationStart(animation: Animation?) {}
+
+            override fun onAnimationEnd(animation: Animation?) {
+                binding.luckRoulette.isVisible = false
+                binding.luckPremonition.isVisible = true
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {}
+
+        })
+        binding.luckRoulette.startAnimation(disappearAnimation)
+        binding.luckPremonition.startAnimation(appearAnimation)
     }
 }
