@@ -1,6 +1,7 @@
 package com.ailenaguino.horoscopeapp.ui.luck
 
 import android.animation.ObjectAnimator
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -48,10 +49,22 @@ class LuckFragment : Fragment() {
 
     private fun preparePremonition() {
         val luck = randomCardProvider.getLucky()
-        luck?.let {
-            binding.tvLuckyDescription.text = getString(it.text)
-            binding.ivLuckyCard.setImageResource(it.image)
+        luck?.let {l ->
+            binding.tvLuckyDescription.text = getString(l.text)
+            binding.ivLuckyCard.setImageResource(l.image)
+            binding.tvShare.setOnClickListener { shareResult(getString(l.text)) }
         }
+    }
+
+    private fun shareResult(result: String) {
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, result)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
     }
 
     private fun initListeners() {
